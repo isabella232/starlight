@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/starlight-go/starlight"
+	"github.com/sourcegraph/starlight"
 )
 
 func TestVariadic(t *testing.T) {
@@ -23,7 +23,7 @@ def do():
 	if v != "false 1" :
 		fatal("unexpected output:", v)
 	v = sprint(False, 1, " hi ", {"key":"value"})
-	if v != 'false 1 hi map[key:"value"]' :
+	if v != 'false 1 hi map[key:value]' :
 		fatal("unexpected output:", v)
 	v = sprintf("this is your %dst formatted message", 1)
 	if v != "this is your 1st formatted message":

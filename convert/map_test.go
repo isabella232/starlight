@@ -5,9 +5,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/starlight-go/starlight/convert"
+	"github.com/sourcegraph/starlight/convert"
 
-	"github.com/starlight-go/starlight"
+	"github.com/sourcegraph/starlight"
 	"go.starlark.net/starlark"
 )
 
@@ -131,15 +131,19 @@ func toMap(m map[interface{}]interface{}) (map[string]int, error) {
 		if !ok {
 			return nil, fmt.Errorf("expected string key, but got %#v", k)
 		}
-		i, ok := v.(starlark.Int)
-		if !ok {
-			return nil, fmt.Errorf("expected starlark int val, but got %#v", v)
+		if j, ok := v.(int64); ok {
+			out[s] = int(j)
+		} else {
+			i, ok := v.(starlark.Int)
+			if !ok {
+				return nil, fmt.Errorf("expected starlark int val, but got %#v", v)
+			}
+			val, ok := i.Int64()
+			if !ok {
+				return nil, fmt.Errorf("starlark int can't be represented as an int64: %s", i)
+			}
+			out[s] = int(val)
 		}
-		val, ok := i.Int64()
-		if !ok {
-			return nil, fmt.Errorf("starlark int can't be represented as an int64: %s", i)
-		}
-		out[s] = int(val)
 	}
 	return out, nil
 }
