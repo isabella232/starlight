@@ -203,7 +203,7 @@ func FromDict(m *starlark.Dict) map[interface{}]interface{} {
 		key := FromValue(k)
 		// should never be not found or unhashable, so ignore err and found.
 		val, _, _ := m.Get(k)
-		ret[key] = val
+		ret[key] = FromValue(val)
 	}
 	return ret
 }
@@ -294,6 +294,9 @@ func makeStarFn(name string, gofn reflect.Value) *starlark.Builtin {
 			val := reflect.ValueOf(v)
 			argT := gofn.Type().In(i)
 			if !val.Type().AssignableTo(argT) {
+				if !val.Type().ConvertibleTo(argT) {
+					return starlark.None, fmt.Errorf("arg %d expected type %v got %v", i, argT, val.Type())
+				}
 				val = val.Convert(argT)
 			}
 			rvs = append(rvs, val)
@@ -348,6 +351,9 @@ func makeVariadicStarFn(name string, gofn reflect.Value) *starlark.Builtin {
 			val := reflect.ValueOf(vals[i])
 			argT := gofn.Type().In(i)
 			if !val.Type().AssignableTo(argT) {
+				if !val.Type().ConvertibleTo(argT) {
+					return starlark.None, fmt.Errorf("arg %d expected type %v got %v", i, argT, val.Type())
+				}
 				val = val.Convert(argT)
 			}
 			rvs = append(rvs, val)
@@ -359,6 +365,9 @@ func makeVariadicStarFn(name string, gofn reflect.Value) *starlark.Builtin {
 		for i := minArgs; i < len(vals); i++ {
 			val := reflect.ValueOf(vals[i])
 			if !val.Type().AssignableTo(vtype) {
+				if !val.Type().ConvertibleTo(vtype) {
+					return starlark.None, fmt.Errorf("arg %d expected type %v got %v", i, vtype, val.Type())
+				}
 				val = val.Convert(vtype)
 			}
 			rvs = append(rvs, val)
